@@ -1,0 +1,14 @@
+# Applied Linear Regression
+https://onlinelibrary.wiley.com/doi/book/10.1002/0471704091
+
+# Modelos de regressão não linear
+https://www.ime.unicamp.br/~cnaber/cursomodelosnaolinearesR.pdf
+
+# Non-linear Modelling
+http://www.hiercourse.com/docs/Rnotes_nonlinear.pdf
+
+# Non-linear regression
+https://rpubs.com/remkoduursma/28730
+
+# A Nonlinear Regression Models and Applications in Agricultural Research
+https://acsess.onlinelibrary.wiley.com/doi/10.2134/agronj2012.0506
