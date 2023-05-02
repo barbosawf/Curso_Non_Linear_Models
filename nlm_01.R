@@ -46,6 +46,9 @@ head(Orange)
 unique(Orange$Tree) # 5 árvores no total
 
 Orange %>%
+  as_tibble() |>
+  mutate(Tree = factor(Tree, levels = c(1:5))) %>% 
+  arrange(Tree) %>% 
   ggplot(aes(x = age, y = circumference)) +
   geom_point(size = 3) + facet_wrap(~Tree) +
   labs(x = 'Age', y = 'Circumference')
