@@ -199,7 +199,7 @@ turkey %>%
 func = function(x, t1, t2, t3){
   t1 + t2 * (1 - exp(- t3 * x))
 }
-
+datasets::Orange
 #### 3.1.4. Ajustando modelos com chutes específicos ####
 
 mod3 = nls(Gain ~ func(Amount, t1, t2, t3), data = turkey,
@@ -368,6 +368,14 @@ analise_nlsList(orange_log2)
 orange_log2 |>
   map_dfr(\(x) tibble(AIC = AIC(x), BIC = BIC(x)), .id = 'ID') 
 
+orange_log2 |>
+  map_dfr(broom::tidy, .id = 'ID') |>
+  arrange_at(vars(ID))
+
+orange_log2 |>
+  map_dfr(broom::glance, .id = 'ID') |>
+  arrange_at(vars(ID))
+
 #### 7.1.4. Gráfico ####
 
 aj = fitted(orange_log2)
@@ -432,6 +440,16 @@ soylist |>
       AIC = num(AIC(x), digits = 4),
       BIC = num(BIC(x), digits = 4)
     ), .id = 'ID')
+
+
+soylist |>
+  map_dfr(broom::tidy, .id = 'ID') |>
+  arrange_at(vars(ID))
+
+soylist |>
+  map_dfr(broom::glance, .id = 'ID') |>
+  arrange_at(vars(ID)) |>
+  mutate_at(vars(sigma, logLik, AIC, BIC, deviance), ~ num(., digits = 4)) 
 
 #### 7.2.4. Valores ajustados ####
 
@@ -516,8 +534,22 @@ head(lact2)
 
 mnl_wood = nlsList(mkg ~ Wood(dia, a, b, c), data = lact2,
                    start = list(a = 22, b = .15, c = .001)) 
+
+intervals(mnl_wood)
+
 summary(mnl_wood)
 plot(intervals(mnl_wood)) # Intervalos de confiança
+
+
+mnl_wood |>
+  map_dfr(broom::tidy, .id = 'ID') |>
+  arrange_at(vars(ID))
+
+mnl_wood |>
+  map_dfr(broom::glance, .id = 'ID') |>
+  arrange_at(vars(ID)) |>
+  mutate_at(vars(sigma, logLik, AIC, BIC, deviance), ~ num(., digits = 4)) 
+
 
 ##### 9.4. Ajuste do modelo de Nelder #####
 
@@ -529,6 +561,14 @@ mnl_nelder = nlsList(mkg ~ Nelder(dia, a, b, c), data = lact2,
                      start = list(a = 22, b = .15, c = .001))
 summary(mnl_nelder)
 plot(intervals(mnl_nelder))
+
+mnl_nelder |>
+  map_dfr(broom::tidy, .id = 'ID') |>
+  arrange_at(vars(ID))
+
+mnl_nelder |>
+  map_dfr(broom::glance, .id = 'ID') |>
+  arrange_at(vars(ID)) 
 
 #### 9.5. Comparando modelos ####
 
@@ -573,7 +613,7 @@ lact2 %>%
 
 plot(ChickWeight)
 head(ChickWeight)
-
+class(ChickWeight)
 logistic = function(age, Asym, xmid, scal){
   Asym / (1 + exp(- scal * (age - xmid)))
 }
@@ -600,7 +640,12 @@ logistic = function(input, Asym, xmid, scal){
 #### Gráfico ####
 
 plot(Orange)
-
+plot(Milk)
+Milk |> 
+  dplyr::filter(Diet == 'barley+lupins') |>
+  droplevels() |> plot()
+  
+unique(Milk$Diet)
 # 170, 600, .15
 # 1.927e+02 7.288e+02 2.829e-03 
 nlme1 = nlme(circumference ~ logistic(age, Asym, xmid, scal), data = Orange,
@@ -609,13 +654,24 @@ nlme1 = nlme(circumference ~ logistic(age, Asym, xmid, scal), data = Orange,
              start = c(192, 728, .002))
 nlme1
 summary(nlme1)
-
+coef(nlme1)
 #### 12.2. Soybean ####
 
 nlme2 = nlme(weight ~ logistic(Time, Asym, xmid, scal),
              data = Soybean,
              fixed = Asym + xmid + scal ~ 1,
              random = pdDiag(Asym + xmid + scal ~ 1),
-             start = c(18.4182, 53.9562,  0.1226))
+             start = c(19, 55,  0.12))
 nlme2
 summary(nlme2)
+coef(nlme2) |> colMeans()
+plot(Loblolly)
+
+fm1 <- nlme(height ~ SSasymp(age, Asym, R0, lrc),
+            data = Loblolly,
+            fixed = Asym + R0 + lrc ~ 1,
+            random = Asym ~ 1,
+            start = c(Asym = 103, R0 = -8.5, lrc = -3.3))
+summary(fm1)
+fm2 <- update(fm1, random = pdDiag(Asym + lrc ~ 1))
+summary(fm2)
